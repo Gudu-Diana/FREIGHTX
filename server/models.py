@@ -1,21 +1,35 @@
 from sqlalchemy_serializer import SerializerMixin
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from config import db
+from config import db, bcrypt
 
 # Models go here!
 class User(db.Model, SerializerMixin):
-  __tablename__ = "users"
-  serialize_rules = ('-password', '-passengers.user')
-  id = db.Column(db.Integer, primary_key=True)
-  name = db.Column(db.String(100), nullable=False)
-  email = db.Column(db.String(100), unique=True, nullable=False)
-  password = db.Column(db.String, nullable=False)
-  balance = db.Column(db.Integer, nullable=False)
-  passengers = db.relationship('Passenger', back_populates='user')
-  ships = association_proxy('passengers', 'ship')
+    __tablename__ = "users"
+    serialize_rules = ('-password', '-passengers.user')
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String, nullable=False)
+    balance = db.Column(db.Integer, nullable=False)
+    passengers = db.relationship('Passenger', back_populates='user')
+    ships = association_proxy('passengers', 'ship')
 
-  def __repr__(self):
+    @hybrid_property
+    def password_hash(self):
+        raise AttributeError('Password may not be viewed.')
+
+    @password_hash.setter
+    def password_hash(self, password):
+        password_hash = bcrypt.generate_password_hash(
+            password.encode('utf-8'))
+        self._password_hash = password_hash.decode('utf-8')
+
+    def authenticate(self, password):
+        return bcrypt.check_password_hash(
+            self._password_hash, password.encode('utf-8'))
+    def __repr__(self):
       return f'<User {self.name}>'
 
 class Passenger(db.Model):
