@@ -49,18 +49,24 @@ def sign_up():
         db.session.rollback()
         return jsonify({"error": "Failed to create user", "details": str(e)}), 500
 
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
     email = data.get('email')
     password = data.get('password')
+
+    if not email or not password:
+        return jsonify({'success': False, 'message': 'Email and password are required'}), 400
+
     user = User.query.filter_by(email=email).first()
-    
-    if user and user.authenticate(password):
-        session['user_id'] = user.id
-        return jsonify({'success': True})
-    
-    return jsonify({'success': False, 'message': 'Invalid email or password'}), 401
+
+    if not user or not user.authenticate(password):
+        return jsonify({'success': False, 'message': 'Invalid email or password'}), 401
+
+    session['user_id'] = user.id
+    return jsonify({'success': True, 'message': 'Login successful'})
+
 
 @app.route('/checksession', methods=['GET'])
 def check_session():
