@@ -11,9 +11,15 @@ from flask_restful import Resource
 # Local imports
 from config import app, db, api, bcrypt
 # Add your model imports
-from models import User
+from models import User, Ship
 
 # Views go here!
+@app.route('/ships', methods=['GET'])
+def get_ships():
+    ships = Ship.query.all()
+    ships_data = [ship.to_dict() for ship in ships]
+    return make_response(ships_data, 200)
+
 @app.route('/signup', methods=['POST'])
 def sign_up():
     data = request.get_json()
@@ -21,14 +27,14 @@ def sign_up():
     email = data.get('email')
     password = data.get('password')
     balance = data.get('balance')
-
+  
     if not name or not email or not password or not balance:
         return jsonify({"error": "All fields are required"}), 422
     
     new_user = User(
         name=name,
         email=email,
-        password=password,
+        _password_hash=password,
         balance=balance,
     )
 

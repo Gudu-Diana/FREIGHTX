@@ -11,7 +11,7 @@ class User(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String, nullable=False)
+    _password_hash = db.Column(db.String, nullable=False)
     balance = db.Column(db.Integer, nullable=False)
     passengers = db.relationship('Passenger', back_populates='user')
     ships = association_proxy('passengers', 'ship')
@@ -65,6 +65,22 @@ class Ship(db.Model):
     
     def __repr__(self):
         return f'<Ship {self.name}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'capacity_weight': self.capacity_weight,
+            'current_weight': self.current_weight,
+            'total_tickets': self.total_tickets,
+            'available_tickets': self.available_tickets,
+            'category': self.category,
+            'port': {
+                'id': self.port.id,
+                'name': self.port.name,
+            },
+            'contractor_id': self.contractor_id
+        }
     
 class Port(db.Model, SerializerMixin):
   __tablename__ = "ports"   
@@ -90,6 +106,17 @@ class Contractor(db.Model, SerializerMixin):
   def __repr__(self):
       return f'<Contractor {self.name}>'
 
+class Package(db.Model,SerializerMixin):
+    __tablename__ = 'packages'
+    id = db.Column(db.Integer, primary_key=True)
+    ship_id = db.Column(db.Integer, db.ForeignKey('ships.id'), nullable=False)
+    destination = db.Column(db.String)
+    price = db.Column(db.Integer, nullable=False)
+    status = db.Column (db.String)
+    weight = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return f'<Package {self.destination}>'
   
 class UserShipAssociation(db.Model, SerializerMixin):
     __tablename__ = 'user_ship_association'
