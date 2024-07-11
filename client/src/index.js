@@ -1,15 +1,20 @@
 import React from "react";
 import App from "./components/App";
 import "./index.css";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
-ReactDOM.render(
-    <BrowserRouter>
-        <App />
-    </BrowserRouter>
-    , document.getElementById("root")
+const container = document.getElementById("root");
+const root = createRoot(container);
+root.render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
 );
+
+// const container = document.getElementById("root");
+// const root = createRoot(container);
+// root.render(<App />);
 // const container = document.getElementById("root");
 // const root = createRoot(container);
 // root.render(<App />);
