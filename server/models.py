@@ -15,6 +15,7 @@ class User(db.Model, SerializerMixin):
     balance = db.Column(db.Integer, nullable=False)
     passengers = db.relationship('Passenger', back_populates='user')
     ships = association_proxy('passengers', 'ship')
+    transactions = db.relationship('Transaction', back_populates='user')
 
     @hybrid_property
     def password_hash(self):
@@ -29,6 +30,15 @@ class User(db.Model, SerializerMixin):
     def authenticate(self, password):
         return bcrypt.check_password_hash(
             self._password_hash, password.encode('utf-8'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'balance': self.balance,
+            'transactions': [transaction.to_dict() for transaction in self.transactions]
+        }
     def __repr__(self):
       return f'<User {self.name}>'
 
@@ -132,3 +142,16 @@ class UserShipAssociation(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     ship_id = db.Column(db.Integer, db.ForeignKey('ships.id'), nullable=False)
+
+class Transaction(db.Model):
+    __tablename__ = 'transactions'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    amount = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime, default=db.func.now())
+
+    user = db.relationship('User', back_populates='transactions')
+
+    def __repr__(self):
+        return f'<Transaction {self.id}>'

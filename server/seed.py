@@ -8,7 +8,7 @@ from faker import Faker
 
 # Local imports
 from app import app
-from models import db, Contractor, User, Port, Ship, Passenger, Package
+from models import db, Contractor, User, Port, Ship, Passenger, Package, Transaction
 
 # Seed data function
 if __name__ == '__main__':
@@ -136,5 +136,20 @@ if __name__ == '__main__':
         db.session.add_all(ships)
         db.session.commit()
         print("Ships seeding complete.")
+
+        transactions = []
+        for user in users:
+            for _ in range(10): 
+                amount=randint(10, 1000)
+                description=fake.sentence()
+                created_at=fake.date_time_between(start_date='-1y', end_date='now')
+                transaction=Transaction(user_id=user.id, amount=amount, description=description, created_at=created_at)
+                transactions.append(transaction)
+
+        db.session.add_all(transactions)
+        db.session.commit()
+        print("Transactions seeding complete.")
+
+
 
         print("Seeding complete!")
