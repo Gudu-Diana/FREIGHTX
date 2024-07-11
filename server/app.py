@@ -11,7 +11,7 @@ from flask_restful import Resource
 # Local imports
 from config import app, db, api, bcrypt
 # Add your model imports
-from models import User, Ship
+from models import User, Ship,Port
 
 # Views go here!
 @app.route('/ships', methods=['GET'])
@@ -19,6 +19,12 @@ def get_ships():
     ships = Ship.query.all()
     ships_data = [ship.to_dict() for ship in ships]
     return make_response(ships_data, 200)
+
+@app.route('/ports', methods=['GET'])
+def get_ports():
+    ports = Port.query.all()
+    port_data = [port.to_dict() for port in ports]
+    return make_response(port_data, 200)
 
 @app.route('/signup', methods=['POST'])
 def sign_up():

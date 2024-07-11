@@ -94,6 +94,15 @@ class Port(db.Model, SerializerMixin):
   def __repr__(self):
       return f'<Port {self.name}>'
   
+  def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'location': self.location,
+            'image_url': self.image_url,
+            'ships': [ship.to_dict() for ship in self.ships]  
+        }
+  
 class Contractor(db.Model, SerializerMixin):
   __tablename__ = "contractors"
   serialize_rules = ('-ships.contractor',)
