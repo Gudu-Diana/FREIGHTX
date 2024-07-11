@@ -108,7 +108,15 @@ def get_transactions():
     status=200
    
    return make_response(body, status)
-
+@app.route('/user', methods=['GET'])
+def user_details():
+   user_id = session.get('user_id')
+   if not user_id in session:
+    return make_response('Unauthorised', 401)
+   else:
+    user = User.query.get(user_id)
+    return make_response(user.to_dict(), 200)
+   
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
 

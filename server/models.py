@@ -30,6 +30,15 @@ class User(db.Model, SerializerMixin):
     def authenticate(self, password):
         return bcrypt.check_password_hash(
             self._password_hash, password.encode('utf-8'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'balance': self.balance,
+            'transactions': [transaction.to_dict() for transaction in self.transactions]
+        }
     def __repr__(self):
       return f'<User {self.name}>'
 
